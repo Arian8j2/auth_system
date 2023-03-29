@@ -11,7 +11,7 @@ pub async fn create_test_db() -> DbPool {
 }
 
 async fn reset_db(pool: &DbPool) -> Result<()> {
-    sqlx::query!("DROP TABLE IF EXISTS users")
+    sqlx::query!("DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS smscodes")
         .execute(pool)
         .await?;
 

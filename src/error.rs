@@ -1,8 +1,12 @@
 use actix_web::{http::StatusCode, ResponseError};
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum ApiError {
+    #[error("expired sms code")]
+    ExpiredSmsCode,
+    #[error("wrong sms code")]
+    WrongSmsCode,
     #[error("user with same phone number already exists")]
     RegisterDuplicate,
     #[error("database error: {msg}")]

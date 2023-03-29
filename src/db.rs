@@ -1,4 +1,5 @@
 pub mod user;
+pub mod smscodes;
 
 use anyhow::Result;
 use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
@@ -16,5 +17,6 @@ pub async fn establish_connection() -> Result<SqlitePool> {
 }
 
 pub async fn setup(pool: &DbPool) -> Result<()> {
-    user::setup_user_table(pool).await
+    user::setup_user_table(pool).await?;
+    smscodes::setup_smscodes(pool).await
 }
