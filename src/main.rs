@@ -1,4 +1,4 @@
-mod auth;
+mod api;
 mod db;
 mod error;
 
@@ -21,7 +21,7 @@ async fn main() -> Result<()> {
         App::new()
             .wrap(Logger::default())
             .app_data(Data::new(pool.clone()))
-            .service(auth::register::register)
+            .service(api::register::register)
     })
     .bind(("127.0.0.1", 8000))?
     .run()
