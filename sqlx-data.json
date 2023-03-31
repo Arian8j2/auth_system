@@ -1,0 +1,57 @@
+{
+  "db": "SQLite",
+  "4977c08e3f3fc2956ea19aa818a543dcea97048fd8d19ad43f6a054ec324e730": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "INSERT OR IGNORE INTO users (name, password, phone_number) VALUES (?, ?, ?)"
+  },
+  "b665e6d9c3fcb59a72b26c630bb0c2f5b12dbdf552f6c42cce6b4b6b76ba811d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "last_sent_code",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "last_sent_date",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT last_sent_code, last_sent_date FROM smscodes WHERE phone_number=? LIMIT 1"
+  },
+  "b81943465642293bb5d644d426f0c36f0d61a883d110ac6df11cc1b31ad0509a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "INSERT OR IGNORE INTO smscodes (phone_number, last_sent_code, last_sent_date) VALUES (?, ?, ?)"
+  },
+  "bf7a73d6112877ba0ada17396b068e3ea0b2c70257cb4c9a9d2888909168a5cc": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "UPDATE smscodes SET last_sent_code=?, last_sent_date=? WHERE phone_number=?"
+  }
+}
