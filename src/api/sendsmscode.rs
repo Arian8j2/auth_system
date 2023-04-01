@@ -42,5 +42,3 @@ fn generate_random_six_digit_code() -> u32 {
         .parse::<u32>()
         .unwrap()
 }
-
-// TODO: write test
