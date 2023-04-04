@@ -1,7 +1,7 @@
 use super::DbPool;
+use crate::error::{ApiError, ApiResult};
 use anyhow::Result;
 use sqlx::Executor;
-use crate::error::{ApiError, ApiResult};
 
 pub async fn setup_user_table(pool: &DbPool) -> Result<()> {
     pool.execute(
@@ -38,4 +38,21 @@ pub async fn insert_user(
     } else {
         Ok(())
     }
+}
+
+pub async fn does_user_exists(
+    pool: &DbPool,
+    phone_number: &str,
+    password: &str,
+) -> ApiResult<bool> {
+    let result = sqlx::query!(
+        "SELECT name FROM users WHERE phone_number=? AND password=? LIMIT 1",
+        phone_number,
+        password
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| ApiError::SqlError { msg: e.to_string() })?;
+
+    Ok(result.is_some())
 }

@@ -5,14 +5,21 @@ use thiserror::Error;
 pub enum ApiError {
     #[error("expired sms code")]
     ExpiredSmsCode,
+
     #[error("wrong sms code")]
     WrongSmsCode,
+
     #[error("user with same phone number already exists")]
     RegisterDuplicate,
+
     #[error("database error: {msg}")]
     SqlError { msg: String },
+
     #[error("argument '{argument_name}' is incorrect")]
     BadArgument { argument_name: &'static str },
+
+    #[error("wrong credentials")]
+    WrongCredentials,
 }
 
 pub type ApiResult<T> = Result<T, ApiError>;

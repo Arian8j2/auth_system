@@ -1,8 +1,8 @@
 mod api;
-mod utils;
 mod db;
 mod error;
 mod smsprovider;
+mod utils;
 
 #[cfg(test)]
 mod test;
@@ -30,6 +30,7 @@ async fn main() -> Result<()> {
             .app_data(Data::from(sms_provider.clone()))
             .service(api::register::register)
             .service(api::sendsmscode::sendsmscode)
+            .service(api::login::login)
     })
     .bind(("127.0.0.1", 8000))?
     .run()
