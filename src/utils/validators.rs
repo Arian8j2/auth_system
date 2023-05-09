@@ -1,15 +1,20 @@
 use crate::error::{ApiError, ApiResult};
+use regex::Regex;
 
-pub fn validate_phone_number(phone_number: &str) -> ApiResult<()> {
-    let has_valid_length = phone_number.len() == 11;
-    let has_valid_characters = phone_number.chars().all(|char| char.is_ascii_digit());
-    if has_valid_length && has_valid_characters {
-        Ok(())
-    } else {
-        Err(ApiError::BadArgument {
-            argument_name: "phone_number",
+lazy_static! {
+    static ref VALID_EMAIL_REGEX: Regex = {
+        Regex::new(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+            .expect("email validator regex is wrong")
+    };
+}
+
+pub fn validate_email_address(email_address: &str) -> ApiResult<()> {
+    VALID_EMAIL_REGEX
+        .is_match(email_address)
+        .then_some(())
+        .ok_or(ApiError::BadArgument {
+            argument_name: "email_address",
         })
-    }
 }
 
 pub fn validate_name(name: &str) -> ApiResult<()> {

@@ -3,11 +3,11 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum ApiError {
-    #[error("expired sms code")]
-    ExpiredSmsCode,
+    #[error("expired email code")]
+    ExpiredEmailCode,
 
-    #[error("wrong sms code")]
-    WrongSmsCode,
+    #[error("wrong email code")]
+    WrongEmailCode,
 
     #[error("user with same phone number already exists")]
     RegisterDuplicate,

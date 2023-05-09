@@ -1,48 +1,48 @@
 use crate::{
-    db::{user::insert_user, DbPool, smscodes::get_last_sent_smscode},
+    db::{email_codes::get_last_sent_email_code, user::insert_user, DbPool},
     error::{ApiError, ApiResult},
+    utils::hash::sha256_hash,
     utils::validators::*,
-    utils::hash::sha256_hash
 };
 use actix_web::{
     post,
     web::{Data, Json},
 };
-use chrono::{Utc, Duration};
+use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct RegisterArgs {
-    phone_number: String,
+    email_address: String,
     name: String,
     password: String,
-    smscode: u32,
+    email_code: u32,
 }
 
 #[post("/register")]
 pub async fn register(args: Json<RegisterArgs>, pool: Data<DbPool>) -> ApiResult<&'static str> {
-    validate_phone_number(&args.phone_number)?;
+    validate_email_address(&args.email_address)?;
     validate_name(&args.name)?;
     validate_password(&args.password)?;
 
-    let sms_code = get_last_sent_smscode(&pool, &args.phone_number).await?;
+    let email_code = get_last_sent_email_code(&pool, &args.email_address).await?;
     let now_date = Utc::now();
-    if (sms_code.sent_date - now_date) > Duration::hours(1) {
-        return Err(ApiError::ExpiredSmsCode)
+    if (email_code.sent_date - now_date) > Duration::hours(1) {
+        return Err(ApiError::ExpiredEmailCode);
     }
 
-    if sms_code.code != args.smscode {
-        return Err(ApiError::WrongSmsCode)
+    if email_code.code != args.email_code {
+        return Err(ApiError::WrongEmailCode);
     }
 
     let hashed_password = sha256_hash(&args.password);
-    insert_user(&pool, &args.name, &hashed_password, &args.phone_number).await?;
+    insert_user(&pool, &args.name, &hashed_password, &args.email_address).await?;
     Ok("")
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{test::helper::create_test_db, db::smscodes::insert_or_update_smscode};
+    use crate::{db::email_codes::insert_or_update_email_code, test::helper::create_test_db};
 
     use super::*;
     use actix_web::{
@@ -55,13 +55,15 @@ mod tests {
     #[actix_web::test]
     async fn test_register() {
         let db = create_test_db().await;
-        insert_or_update_smscode(&db, "09223768300", 123456).await.unwrap();
+        insert_or_update_email_code(&db, "arian@gmail.com", 123456)
+            .await
+            .unwrap();
 
         let app = test::init_service(App::new().app_data(Data::new(db)).service(register)).await;
         let req = TestRequest::post()
             .uri("/register")
             .set_payload(
-                r#"{"name": "arian", "password": "idkkkkl", "phone_number": "09223768300", "smscode": 123456}"#,
+                r#"{"name": "arian", "password": "idkkkkl", "email_address": "arian@gmail.com", "email_code": 123456}"#,
             )
             .insert_header(ContentType::json())
             .to_request();
@@ -71,14 +73,16 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_same_phone_number_register() {
+    async fn test_same_email_address_register() {
         let db = create_test_db().await;
-        insert_or_update_smscode(&db, "09224769300", 789102).await.unwrap();
+        insert_or_update_email_code(&db, "arian@gmail.com", 789102)
+            .await
+            .unwrap();
         let app = test::init_service(App::new().app_data(Data::new(db)).service(register)).await;
 
         let req = TestRequest::post()
             .uri("/register")
-            .set_payload(r#"{"name": "arian", "password": "idkkk", "phone_number": "09224769300", "smscode": 789102}"#)
+            .set_payload(r#"{"name": "arian", "password": "idkkk", "email_address": "arian@gmail.com", "email_code": 789102}"#)
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
@@ -86,7 +90,7 @@ mod tests {
 
         let req = TestRequest::post()
             .uri("/register")
-            .set_payload(r#"{"name": "pouya", "password": "okkok", "phone_number": "09224769300", "smscode": 789102}"#)
+            .set_payload(r#"{"name": "pouya", "password": "okkok", "email_address": "arian@gmail.com", "email_code": 789102}"#)
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
@@ -94,12 +98,12 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_invalid_phone_number_register() {
+    async fn test_invalid_email_address_register() {
         let db = create_test_db().await;
         let app = test::init_service(App::new().app_data(Data::new(db)).service(register)).await;
         let req = TestRequest::post()
             .uri("/register")
-            .set_payload(r#"{"name": "arian", "password": "idkkk", "phone_number": "0922", "smscode": 238218}"#)
+            .set_payload(r#"{"name": "arian", "password": "idkkk", "email_address": "arian", "email_code": 238218}"#)
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;

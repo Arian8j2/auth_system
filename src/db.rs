@@ -1,22 +1,21 @@
+pub mod email_codes;
 pub mod user;
-pub mod smscodes;
 
 use anyhow::Result;
 use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
-use std::env;
 
 pub type DbPool = SqlitePool;
 
-pub async fn establish_connection() -> Result<SqlitePool> {
+pub async fn establish_connection(db_url: &str) -> Result<SqlitePool> {
     let pool = SqlitePoolOptions::new()
         .max_connections(5)
-        .connect(&env::var("DATABASE_URL").expect("environment variable DATABASE_URL is not set!"))
+        .connect(db_url)
         .await?;
 
     Ok(pool)
 }
 
 pub async fn setup(pool: &DbPool) -> Result<()> {
-    user::setup_user_table(pool).await?;
-    smscodes::setup_smscodes(pool).await
+    sqlx::migrate!("./src/db/migrations").run(pool).await?;
+    Ok(())
 }

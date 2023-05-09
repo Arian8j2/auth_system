@@ -1,6 +1,6 @@
 {
   "db": "SQLite",
-  "4977c08e3f3fc2956ea19aa818a543dcea97048fd8d19ad43f6a054ec324e730": {
+  "3c1f997e65659e1fc092b3417cb192cb22616e2ff448385ac6f8e6587ee89eef": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -8,9 +8,9 @@
         "Right": 3
       }
     },
-    "query": "INSERT OR IGNORE INTO users (name, password, phone_number) VALUES (?, ?, ?)"
+    "query": "UPDATE email_codes SET last_sent_code=?, last_sent_date=? WHERE email_address=?"
   },
-  "b665e6d9c3fcb59a72b26c630bb0c2f5b12dbdf552f6c42cce6b4b6b76ba811d": {
+  "6296085d448b60abc09c97642666e8c5586d07d178b5d38f5ea0c7f2884c9aef": {
     "describe": {
       "columns": [
         {
@@ -32,9 +32,27 @@
         "Right": 1
       }
     },
-    "query": "SELECT last_sent_code, last_sent_date FROM smscodes WHERE phone_number=? LIMIT 1"
+    "query": "SELECT last_sent_code, last_sent_date FROM email_codes WHERE email_address=? LIMIT 1"
   },
-  "b81943465642293bb5d644d426f0c36f0d61a883d110ac6df11cc1b31ad0509a": {
+  "ab468c24ae8c9f15594915e7be66c143ffaef27a9ae9a9b36c29340838a09410": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "SELECT name FROM users WHERE email_address=? AND password=? LIMIT 1"
+  },
+  "ba6af361fb285184acf0bb0016ac85e9a125522f7766609d8113cb7ca50eb90a": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -42,9 +60,9 @@
         "Right": 3
       }
     },
-    "query": "INSERT OR IGNORE INTO smscodes (phone_number, last_sent_code, last_sent_date) VALUES (?, ?, ?)"
+    "query": "INSERT OR IGNORE INTO users (name, password, email_address) VALUES (?, ?, ?)"
   },
-  "bf7a73d6112877ba0ada17396b068e3ea0b2c70257cb4c9a9d2888909168a5cc": {
+  "fce839452aaba062db1ff5b1914e6e66393bec9dd85c65661b2f90cb2a21ad75": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -52,6 +70,6 @@
         "Right": 3
       }
     },
-    "query": "UPDATE smscodes SET last_sent_code=?, last_sent_date=? WHERE phone_number=?"
+    "query": "INSERT OR IGNORE INTO email_codes (email_address, last_sent_code, last_sent_date) VALUES (?, ?, ?)"
   }
 }

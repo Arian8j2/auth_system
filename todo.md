@@ -1,5 +1,5 @@
 [ ] add rate limiter
-[ ] add captcha to sendsmscode api
-[ ] implement real sms provider
+[ ] add captcha to sendemailcode api
+[ ] implement real email sender
 [ ] implement real captcha service
 [ ] add login api

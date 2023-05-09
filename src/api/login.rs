@@ -11,17 +11,17 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginArgs {
-    phone_number: String,
+    email_address: String,
     password: String,
 }
 
 #[post("/login")]
 pub async fn login(args: Json<LoginArgs>, pool: Data<DbPool>) -> ApiResult<&'static str> {
-    validate_phone_number(&args.phone_number)?;
+    validate_email_address(&args.email_address)?;
     validate_password(&args.password)?;
     let hashed_password = sha256_hash(&args.password);
 
-    does_user_exists(&pool, &args.phone_number, &hashed_password)
+    does_user_exists(&pool, &args.email_address, &hashed_password)
         .await?
         .then_some("")
         .ok_or(ApiError::WrongCredentials)
@@ -40,16 +40,18 @@ mod tests {
     #[actix_web::test]
     async fn test_login() {
         let db = create_test_db().await;
-        let phone_number = "09123231976";
+        let email_address = "arian@gmail.com";
         let password = sha256_hash("some_hard_password");
-        insert_user(&db, "idk", &password, &phone_number)
+        insert_user(&db, "idk", &password, &email_address)
             .await
             .unwrap();
 
         let app = test::init_service(App::new().app_data(Data::new(db)).service(login)).await;
         let req = TestRequest::post()
             .uri("/login")
-            .set_payload(r#"{"phone_number": "09123231976", "password": "some_hard_password"}"#)
+            .set_payload(
+                r#"{"email_address": "arian@gmail.com", "password": "some_hard_password"}"#,
+            )
             .insert_header(ContentType::json())
             .to_request();
 
@@ -63,7 +65,9 @@ mod tests {
         let app = test::init_service(App::new().app_data(Data::new(db)).service(login)).await;
         let req = TestRequest::post()
             .uri("/login")
-            .set_payload(r#"{"phone_number": "09123456789", "password": "some_hard_password"}"#)
+            .set_payload(
+                r#"{"email_address": "arian@gmail.com", "password": "some_hard_password"}"#,
+            )
             .insert_header(ContentType::json())
             .to_request();
 
@@ -74,16 +78,16 @@ mod tests {
     #[actix_web::test]
     async fn test_login_with_wrong_password() {
         let db = create_test_db().await;
-        let phone_number = "09123231976";
+        let email_address = "arian@gmail.com";
         let password = sha256_hash("some_hard_password");
-        insert_user(&db, "idk", &password, &phone_number)
+        insert_user(&db, "idk", &password, &email_address)
             .await
             .unwrap();
 
         let app = test::init_service(App::new().app_data(Data::new(db)).service(login)).await;
         let req = TestRequest::post()
             .uri("/login")
-            .set_payload(r#"{"phone_number": "09123231976", "password": "another_password"}"#)
+            .set_payload(r#"{"email_address": "arian@gmail.com", "password": "another_password"}"#)
             .insert_header(ContentType::json())
             .to_request();
 

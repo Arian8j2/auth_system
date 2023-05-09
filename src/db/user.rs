@@ -1,33 +1,17 @@
 use super::DbPool;
 use crate::error::{ApiError, ApiResult};
-use anyhow::Result;
-use sqlx::Executor;
-
-pub async fn setup_user_table(pool: &DbPool) -> Result<()> {
-    pool.execute(
-        "
-            CREATE TABLE IF NOT EXISTS users (
-                phone_number VARCHAR(16) PRIMARY KEY NOT NULL,
-                name VARCHAR(32) NOT NULL,
-                password VARCHAR(255) NOT NULL
-            )
-            ",
-    )
-    .await?;
-    Ok(())
-}
 
 pub async fn insert_user(
     pool: &DbPool,
     name: &str,
     password: &str,
-    phone_number: &str,
+    email_address: &str,
 ) -> ApiResult<()> {
     let result = sqlx::query!(
-        "INSERT OR IGNORE INTO users (name, password, phone_number) VALUES (?, ?, ?)",
+        "INSERT OR IGNORE INTO users (name, password, email_address) VALUES (?, ?, ?)",
         name,
         password,
-        phone_number
+        email_address
     )
     .execute(pool)
     .await
@@ -42,12 +26,12 @@ pub async fn insert_user(
 
 pub async fn does_user_exists(
     pool: &DbPool,
-    phone_number: &str,
+    email_address: &str,
     password: &str,
 ) -> ApiResult<bool> {
     let result = sqlx::query!(
-        "SELECT name FROM users WHERE phone_number=? AND password=? LIMIT 1",
-        phone_number,
+        "SELECT name FROM users WHERE email_address=? AND password=? LIMIT 1",
+        email_address,
         password
     )
     .fetch_optional(pool)
