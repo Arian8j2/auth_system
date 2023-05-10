@@ -43,23 +43,25 @@ async fn update_email_code(pool: &DbPool, email_address: &str, new_code: u32) ->
     Ok(())
 }
 
-pub async fn get_last_sent_email_code(pool: &DbPool, email_address: &str) -> ApiResult<EmailCode> {
+pub async fn get_last_sent_email_code(
+    pool: &DbPool,
+    email_address: &str,
+) -> ApiResult<Option<EmailCode>> {
     let record = sqlx::query!(
         "SELECT last_sent_code, last_sent_date FROM email_codes WHERE email_address=? LIMIT 1",
         email_address
     )
-    .fetch_one(pool)
+    .fetch_optional(pool)
     .await
     .map_err(|e| ApiError::SqlError { msg: e.to_string() })?;
 
-    let email_code = EmailCode {
-        code: record.last_sent_code.try_into().unwrap(),
-        sent_date: DateTime::parse_from_rfc3339(&record.last_sent_date)
+    Ok(record.map(|r| EmailCode {
+        code: r.last_sent_code.try_into().unwrap(),
+        sent_date: DateTime::parse_from_rfc3339(&r.last_sent_date)
             .unwrap()
             .try_into()
             .unwrap(),
-    };
-    Ok(email_code)
+    }))
 }
 
 #[cfg(test)]
@@ -73,18 +75,18 @@ mod tests {
         let db = create_test_db().await;
         let email_address = "arianmoadabb@gmail.com";
 
-        assert!(get_last_sent_email_code(&db, email_address).await.is_err());
+        assert!(get_last_sent_email_code(&db, email_address).await.unwrap().is_none());
 
         assert!(insert_or_update_email_code(&db, email_address, 123456)
             .await
             .is_ok());
-        let last_sent_email_code = get_last_sent_email_code(&db, email_address).await.unwrap();
+        let last_sent_email_code = get_last_sent_email_code(&db, email_address).await.unwrap().unwrap();
         assert_eq!(last_sent_email_code.code, 123456);
 
         assert!(insert_or_update_email_code(&db, email_address, 789102)
             .await
             .is_ok());
-        let last_sent_email_code = get_last_sent_email_code(&db, email_address).await.unwrap();
+        let last_sent_email_code = get_last_sent_email_code(&db, email_address).await.unwrap().unwrap();
         assert_eq!(last_sent_email_code.code, 789102);
     }
 }

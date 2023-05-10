@@ -25,7 +25,10 @@ pub async fn register(args: Json<RegisterArgs>, pool: Data<DbPool>) -> ApiResult
     validate_name(&args.name)?;
     validate_password(&args.password)?;
 
-    let email_code = get_last_sent_email_code(&pool, &args.email_address).await?;
+    let Some(email_code) = get_last_sent_email_code(&pool, &args.email_address).await? else {
+        return Err(ApiError::ExpiredEmailCode);
+    };
+
     let now_date = Utc::now();
     if (email_code.sent_date - now_date) > Duration::hours(1) {
         return Err(ApiError::ExpiredEmailCode);
@@ -104,6 +107,19 @@ mod tests {
         let req = TestRequest::post()
             .uri("/register")
             .set_payload(r#"{"name": "arian", "password": "idkkk", "email_address": "arian", "email_code": 238218}"#)
+            .insert_header(ContentType::json())
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[actix_web::test]
+    async fn register_when_email_code_not_exists() {
+        let db = create_test_db().await;
+        let app = test::init_service(App::new().app_data(Data::new(db)).service(register)).await;
+        let req = TestRequest::post()
+            .uri("/register")
+            .set_payload(r#"{"name": "arian", "password": "idkkk", "email_address": "arian@gmail.com", "email_code": 123456}"#)
             .insert_header(ContentType::json())
             .to_request();
         let resp = test::call_service(&app, req).await;
