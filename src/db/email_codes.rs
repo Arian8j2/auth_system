@@ -71,7 +71,7 @@ mod tests {
     use super::*;
 
     #[actix_web::test]
-    async fn test_get_insert_update_email_code() {
+    async fn get_and_insert_and_update_email_code() {
         let db = create_test_db().await;
         let email_address = "arianmoadabb@gmail.com";
 

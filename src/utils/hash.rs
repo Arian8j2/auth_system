@@ -12,7 +12,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sha256_hash() {
+    fn sha256_hash_should_work() {
         assert_eq!(
             sha256_hash("salam"),
             "0582bd2c13fff71d7f40ef5586e3f4da05a3a61fe5ba9f0b4d06e99905ab83ea"

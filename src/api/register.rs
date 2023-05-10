@@ -56,7 +56,7 @@ mod tests {
     };
 
     #[actix_web::test]
-    async fn test_register() {
+    async fn register_should_work() {
         let db = create_test_db().await;
         insert_or_update_email_code(&db, "arian@gmail.com", 123456)
             .await
@@ -76,7 +76,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_same_email_address_register() {
+    async fn register_with_already_registered_email_address() {
         let db = create_test_db().await;
         insert_or_update_email_code(&db, "arian@gmail.com", 789102)
             .await
@@ -101,7 +101,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_invalid_email_address_register() {
+    async fn register_with_invalid_email_address() {
         let db = create_test_db().await;
         let app = test::init_service(App::new().app_data(Data::new(db)).service(register)).await;
         let req = TestRequest::post()

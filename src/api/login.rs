@@ -38,7 +38,7 @@ mod tests {
     };
 
     #[actix_web::test]
-    async fn test_login() {
+    async fn login_should_work() {
         let db = create_test_db().await;
         let email_address = "arian@gmail.com";
         let password = sha256_hash("some_hard_password");
@@ -60,7 +60,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_login_to_not_existed_account() {
+    async fn login_to_not_existed_account() {
         let db = create_test_db().await;
         let app = test::init_service(App::new().app_data(Data::new(db)).service(login)).await;
         let req = TestRequest::post()
@@ -76,7 +76,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_login_with_wrong_password() {
+    async fn login_with_wrong_password() {
         let db = create_test_db().await;
         let email_address = "arian@gmail.com";
         let password = sha256_hash("some_hard_password");
