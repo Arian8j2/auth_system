@@ -2,6 +2,7 @@ use crate::error::ApiResult;
 use async_trait::async_trait;
 
 #[async_trait]
+#[cfg_attr(test, mockall::automock)]
 pub trait EmailSender {
     async fn send_email(&self, to: &str, message: &str) -> ApiResult<()>;
 }

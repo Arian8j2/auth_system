@@ -75,18 +75,27 @@ mod tests {
         let db = create_test_db().await;
         let email_address = "arianmoadabb@gmail.com";
 
-        assert!(get_last_sent_email_code(&db, email_address).await.unwrap().is_none());
+        assert!(get_last_sent_email_code(&db, email_address)
+            .await
+            .unwrap()
+            .is_none());
 
         assert!(insert_or_update_email_code(&db, email_address, 123456)
             .await
             .is_ok());
-        let last_sent_email_code = get_last_sent_email_code(&db, email_address).await.unwrap().unwrap();
+        let last_sent_email_code = get_last_sent_email_code(&db, email_address)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(last_sent_email_code.code, 123456);
 
         assert!(insert_or_update_email_code(&db, email_address, 789102)
             .await
             .is_ok());
-        let last_sent_email_code = get_last_sent_email_code(&db, email_address).await.unwrap().unwrap();
+        let last_sent_email_code = get_last_sent_email_code(&db, email_address)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(last_sent_email_code.code, 789102);
     }
 }
