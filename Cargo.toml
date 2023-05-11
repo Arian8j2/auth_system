@@ -13,6 +13,7 @@ chrono = "0.4.24"
 dotenv = "0.15.0"
 env_logger = "0.10.0"
 lazy_static = "1.4.0"
+lettre = { version = "0.10.4", features = ["smtp-transport", "tokio1-native-tls"] }
 mockall = "0.11.4"
 rand = "0.8.5"
 regex = "1.8.1"

@@ -13,7 +13,7 @@ mod test;
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use anyhow::Result;
 use dotenv::dotenv;
-use email_sender::{EmailSender, TempEmailSender};
+use email_sender::{EmailSender, RealEmailSender};
 use std::env;
 use std::sync::Arc;
 
@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
     let pool = db::establish_connection(&db_url).await?;
     db::setup(&pool).await?;
 
-    let email_provider: Arc<dyn EmailSender + Send + Sync> = Arc::new(TempEmailSender::new());
+    let email_provider: Arc<dyn EmailSender + Send + Sync> = Arc::new(RealEmailSender::new());
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     HttpServer::new(move || {

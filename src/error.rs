@@ -3,6 +3,12 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum ApiError {
+    #[error("invalid email address")]
+    InvalidEmailAddress,
+
+    #[error("couldn't send email")]
+    EmailError { reason: String },
+
     #[error("expired email code")]
     ExpiredEmailCode,
 
